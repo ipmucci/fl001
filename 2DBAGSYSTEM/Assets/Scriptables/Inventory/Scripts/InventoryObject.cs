@@ -119,6 +119,7 @@ public class InventorySlot
 {
     public ItemObject Item;
     public int Amount;
+    public ItemType[] ItemTypesAllowed;
 
     /// <summary>
     /// set this event to be invoked when this slot changes
@@ -142,12 +143,32 @@ public class InventorySlot
     }
 
     /// <summary>
+    /// Checks if the stot can store an item of a certain type (check for type only)
+    /// </summary>
+    /// <param name="item">Item to check if type is allowed</param>
+    /// <returns>true, if the item type is allowed</returns>
+    public bool CanStoreItemType(ItemObject item)
+    {
+        if (item == null) return false;
+        // 0 or null, allow anything
+        if (ItemTypesAllowed?.Length == 0 && true) return true;
+
+        foreach (var itemType in ItemTypesAllowed)
+            if (itemType == ItemType.Undefined || itemType == item.type) return true;
+
+        return false;
+    }
+
+    /// <summary>
     /// swaps the values with other slot
     /// </summary>
     /// <param name="other">slot to swap with</param>
     /// <returns>true if ok.</returns>
     public bool SwapWith(InventorySlot other)
     {
+        if (other == null) return false;
+        if (CanStoreItemType(other.Item)) return false;
+
         var temp = new InventorySlot(Item, Amount);
         Item = other.Item;
         Amount = other.Amount;
